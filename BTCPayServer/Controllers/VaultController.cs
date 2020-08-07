@@ -1,27 +1,18 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Net.WebSockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BTCPayServer.Client;
 using BTCPayServer.Data;
 using BTCPayServer.Hwi;
 using BTCPayServer.ModelBinders;
-using BTCPayServer.Models;
-using BTCPayServer.Models.StoreViewModels;
-using BTCPayServer.Payments;
-using BTCPayServer.Security;
-using BTCPayServer.Services;
-using LedgerWallet;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NBitcoin;
 using NBXplorer.DerivationStrategy;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace BTCPayServer.Controllers
@@ -127,7 +118,7 @@ namespace BTCPayServer.Controllers
                                 }
                                 await websocketHelper.Send("{ \"info\": \"ready\"}", cancellationToken);
                                 o = JObject.Parse(await websocketHelper.NextMessageAsync(cancellationToken));
-                                var authorization = await _authorizationService.AuthorizeAsync(User, Policies.CanModifyStoreSettings.Key);
+                                var authorization = await _authorizationService.AuthorizeAsync(User, Policies.CanModifyStoreSettings);
                                 if (!authorization.Succeeded)
                                 {
                                     await websocketHelper.Send("{ \"error\": \"not-authorized\"}", cancellationToken);

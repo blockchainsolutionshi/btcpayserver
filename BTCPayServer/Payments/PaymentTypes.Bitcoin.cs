@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
 using BTCPayServer.Payments.Bitcoin;
+using BTCPayServer.Services;
 using BTCPayServer.Services.Invoices;
-using Newtonsoft.Json;
+using NBitcoin;
 using Newtonsoft.Json.Linq;
 
 namespace BTCPayServer.Payments
@@ -21,14 +20,24 @@ namespace BTCPayServer.Payments
         public override string ToPrettyString() => "On-Chain";
         public override string GetId() => "BTCLike";
 
-        public override CryptoPaymentData DeserializePaymentData(string str)
+        public override CryptoPaymentData DeserializePaymentData(BTCPayNetworkBase network, string str)
         {
-            return JsonConvert.DeserializeObject<BitcoinLikePaymentData>(str);
+            return ((BTCPayNetwork)network).ToObject<BitcoinLikePaymentData>(str);
         }
 
-        public override IPaymentMethodDetails DeserializePaymentMethodDetails(string str)
+        public override string SerializePaymentData(BTCPayNetworkBase network, CryptoPaymentData paymentData)
         {
-            return JsonConvert.DeserializeObject<Payments.Bitcoin.BitcoinLikeOnChainPaymentMethod>(str);
+            return ((BTCPayNetwork)network).ToString(paymentData);
+        }
+
+        public override IPaymentMethodDetails DeserializePaymentMethodDetails(BTCPayNetworkBase network, string str)
+        {
+            return ((BTCPayNetwork)network).ToObject<BitcoinLikeOnChainPaymentMethod>(str);
+        }
+
+        public override string SerializePaymentMethodDetails(BTCPayNetworkBase network, IPaymentMethodDetails details)
+        {
+            return ((BTCPayNetwork)network).ToString((BitcoinLikeOnChainPaymentMethod)details);
         }
 
         public override ISupportedPaymentMethod DeserializeSupportedPaymentMethod(BTCPayNetworkBase network, JToken value)
@@ -57,6 +66,19 @@ namespace BTCPayServer.Payments
             txId = txId.Split('-').First();
             return string.Format(CultureInfo.InvariantCulture, network.BlockExplorerLink, txId);
         }
+
+        public override string GetPaymentLink(BTCPayNetworkBase network, IPaymentMethodDetails paymentMethodDetails,
+            Money cryptoInfoDue, string serverUri)
+        {
+            var bip21 =  ((BTCPayNetwork)network).GenerateBIP21(paymentMethodDetails.GetPaymentDestination(), cryptoInfoDue);
+            
+            if ((paymentMethodDetails as BitcoinLikeOnChainPaymentMethod)?.PayjoinEnabled is true)
+            {
+                bip21 += $"&{PayjoinClient.BIP21EndpointKey}={serverUri.WithTrailingSlash()}{network.CryptoCode}/{PayjoinClient.BIP21EndpointKey}";
+            }
+            return bip21;
+        }
+
         public override string InvoiceViewPaymentPartialName { get; } = "ViewBitcoinLikePaymentData";
     }
 }

@@ -7,9 +7,10 @@
 <partial name="_StatusMessage" />
 @if (Model.StoreNotConfigured)
 {
-    <div class="alert alert-warning alert-dismissible" role="alert">
+    <div class="alert alert-warning alert-dismissible mb-5" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <span>Warning: No wallet has been linked to your BTCPay Store. See <a href="https://docs.btcpayserver.org/getting-started/connectwallet" target="_blank" class="alert-link">this link</a> for more information on how to connect your store and wallet.</span>
+        Warning: No wallet has been linked to your BTCPay Store.<br/>
+        See <a href="https://docs.btcpayserver.org/WalletSetup/" target="_blank" class="alert-link">this link</a> for more information on how to connect your store and wallet.
     </div>
 }
 <h4>Access token</h4>
@@ -20,29 +21,33 @@
 </div>
 <div class="row">
     <div class="col-md-8">
-        <a id="CreateNewToken" asp-action="CreateToken" class="btn btn-primary" role="button"><span class="fa fa-plus"></span> Create a new token</a>
-        <table class="table table-sm table-responsive-md">
-            <thead>
+        <a id="CreateNewToken" asp-action="CreateToken" class="btn btn-primary" role="button"><span class="fa fa-plus" asp-route-storeId="@this.Context.GetRouteValue("storeId")"></span> Create a new token</a>
+
+        @if (Model.Tokens.Any())
+        {
+            <table class="table table-sm table-responsive-md">
+                <thead>
                 <tr>
                     <th>Label</th>
                     <th class="text-right">Actions</th>
                 </tr>
-            </thead>
-            <tbody>
+                </thead>
+                <tbody>
                 @foreach (var token in Model.Tokens)
                 {
                     <tr>
                         <td>@token.Label</td>
                         <td class="text-right">
-                            <a asp-action="ShowToken" asp-route-tokenId="@token.Id">See information</a> - <a asp-action="RevokeToken" asp-route-tokenId="@token.Id">Revoke</a>
+                            <a asp-action="ShowToken" asp-route-storeId="@this.Context.GetRouteValue("storeId")" asp-route-tokenId="@token.Id">See information</a> - <a asp-action="RevokeToken" asp-route-storeId="@this.Context.GetRouteValue("storeId")" asp-route-tokenId="@token.Id">Revoke</a>
                         </td>
                     </tr>
                 }
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        }
     </div>
 </div>
-
+<hr class="my-5" />
 <h4>Legacy API Keys</h4>
 <div class="row">
     <div class="col-md-8">
@@ -52,12 +57,28 @@
 
 <div class="row">
     <div class="col-md-8">
-        <form method="post" asp-action="GenerateAPIKey">
+        <form method="post" asp-action="GenerateAPIKey" asp-route-storeId="@this.Context.GetRouteValue("storeId")">
             <div class="form-group">
                 <label asp-for="ApiKey"></label>
-                <input asp-for="ApiKey" readonly class="form-control" />
+                <div class="input-group">
+                    <input asp-for="ApiKey" readonly class="form-control"/>
+                    @if (string.IsNullOrEmpty(Model.ApiKey))
+                    {
+                        <div class="input-group-append">
+                            <button class="btn btn-success" type="submit">Generate</button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="input-group-append">
+                            <button class="btn btn-danger" type="submit" name="command" value="revoke">Revoke</button>
+                        </div>
+                        <div class="input-group-append">
+                            <button class="btn btn-success" type="submit">Re-generate</button>
+                        </div>
+                    }
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary" role="button">Create new API Key</button>
         </form>
     </div>
 </div>

@@ -1,25 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using System.Text;
-using NBXplorer;
-using NBitcoin;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
-#if NETCOREAPP21
-using IWebHostEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
-#else
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
-#endif
+using NBitcoin;
 
 namespace BTCPayServer.Services
 {
     public class BTCPayServerEnvironment
     {
-        IHttpContextAccessor httpContext;
-        TorServices torServices;
+        readonly IHttpContextAccessor httpContext;
+        readonly TorServices torServices;
         public BTCPayServerEnvironment(IWebHostEnvironment env, BTCPayNetworkProvider provider, IHttpContextAccessor httpContext, TorServices torServices)
         {
             this.httpContext = httpContext;
@@ -29,6 +22,12 @@ namespace BTCPayServer.Services
 #else
 			Build = "Release";
 #endif
+#if ALTCOINS
+            AltcoinsVersion = true;
+#else
+            AltcoinsVersion = false;
+#endif
+
             Environment = env;
             NetworkType = provider.NetworkType;
             this.torServices = torServices;
@@ -53,8 +52,9 @@ namespace BTCPayServer.Services
         {
             get; set;
         }
+        public bool AltcoinsVersion { get; set; }
 
-        public bool IsDevelopping
+        public bool IsDeveloping
         {
             get
             {
@@ -73,12 +73,14 @@ namespace BTCPayServer.Services
             }
         }
 
-        public HttpContext Context => httpContext.HttpContext;    
+        public HttpContext Context => httpContext.HttpContext;
 
         public override string ToString()
         {
             StringBuilder txt = new StringBuilder();
             txt.Append($"@Copyright BTCPayServer v{Version}");
+            if (AltcoinsVersion)
+                txt.Append($" (altcoins)");
             if (!Environment.IsProduction() || !Build.Equals("Release", StringComparison.OrdinalIgnoreCase))
             {
                 txt.Append($" Environment: {Environment.EnvironmentName} Build: {Build}");
