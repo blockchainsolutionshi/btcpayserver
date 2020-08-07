@@ -76,6 +76,7 @@ namespace BTCPayServer.Tests
                 await tester.StartAsync();
                 var user = tester.NewAccount();
                 user.GrantAccess();
+                
                 user.RegisterDerivationScheme("LBTC");
                 user.RegisterDerivationScheme("USDT");
                 user.RegisterDerivationScheme("ETB");

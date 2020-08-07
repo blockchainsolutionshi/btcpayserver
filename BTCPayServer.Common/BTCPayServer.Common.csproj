@@ -4,6 +4,11 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="NBXplorer.Client" Version="3.0.16" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Altcoins\Makana\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="NBXplorer.Client" Version="3.0.23" />
   </ItemGroup>
 </Project>

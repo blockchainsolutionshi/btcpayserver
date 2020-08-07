@@ -1182,6 +1182,20 @@
       "symbol":null,
       "crypto":true
    },
+    {
+        "name": "MKNA",
+        "code": "MKNA",
+        "divisibility": 8,
+        "symbol": null,
+        "crypto": true
+    },
+    {
+        "name": "ATMp",
+        "code": "ATMP",
+        "divisibility": 8,
+        "symbol": null,
+        "crypto": true
+    },
    {
       "name":"LCAD",
       "code":"LCAD",

@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Mvc;
 using NBitcoin;
 using NBitcoin.Payment;
 using NBitpayClient;
+using NBXplorer;
 using NBXplorer.DerivationStrategy;
 using NBXplorer.Models;
 using Newtonsoft.Json.Linq;
@@ -174,9 +175,10 @@ namespace BTCPayServer.Tests
             var store = parent.PayTester.GetController<StoresController>(UserId, StoreId);
             GenerateWalletResponseV = await parent.ExplorerClient.GenerateWalletAsync(new GenerateWalletRequest()
             {
-                ScriptPubKeyType = segwit,
+                ScriptPubKeyType = ScriptPubKeyType.Legacy,
                 SavePrivateKeys = importKeysToNBX,
             });
+            GenerateWalletResponseV.DerivationScheme = parent.LBTCExplorerClient.Network.DerivationStrategyFactory.Parse(GenerateWalletResponseV.DerivationScheme.ToString() + "[unblinded]");
             await store.AddDerivationScheme(StoreId,
                 new DerivationSchemeViewModel()
                 {

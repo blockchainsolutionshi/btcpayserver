@@ -144,6 +144,7 @@ namespace BTCPayServer.Payments.Bitcoin
                                 _Aggregator.Publish(new Events.NewBlockEvent() { CryptoCode = evt.CryptoCode });
                                 break;
                             case NBXplorer.Models.NewTransactionEvent evt:
+                                
                                 wallet.InvalidateCache(evt.DerivationStrategy);
 
                                 foreach (var output in network.GetValidOutputs(evt))
@@ -178,6 +179,9 @@ namespace BTCPayServer.Payments.Bitcoin
                                     CryptoCode = wallet.Network.CryptoCode,
                                     NewTransactionEvent = evt
                                 });
+                                Logs.PayServer.LogInformation($"{network.CryptoCode}: Checking if any pending invoice got paid after New Transaction Event...");
+                                //var payCount = await FindPaymentViaPolling(wallet, network);
+                                Logs.PayServer.LogInformation($"{network.CryptoCode}: {paymentCount} payments found");
 
                                 break;
                             default:

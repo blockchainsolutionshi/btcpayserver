@@ -59,7 +59,9 @@ namespace BTCPayServer
             InitMonero();
             InitPolis();
             InitChaincoin();
-            InitArgoneum();
+            //InitArgoneum();
+            InitMakana();
+            InitMakanaAssets();
 
             // Assume that electrum mappings are same as BTC if not specified
             foreach (var network in _Networks.Values.OfType<BTCPayNetwork>())
